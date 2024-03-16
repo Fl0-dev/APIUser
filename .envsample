@@ -1,0 +1,9 @@
+# Database Configuration
+DB_HOSTNAME="To-be-modified"
+DB_USERNAME="To-be-modified"
+DB_PASSWORD="To-be-modified"
+DB_DATABASE="To-be-modified"
+DB_DRIVER="To-be-modified"
+
+FRONTEND_BEARER_TOKEN = "To-be-modified"
+BACKEND_BEARER_TOKEN = "To-be-modified"
