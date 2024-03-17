@@ -83,6 +83,25 @@ class UserModel extends CI_Model
         return $userId;
     }
 
+    public function updateLastConnected($userId)
+    {
+        if (empty($userId)) {
+            throw new Exception('User id is required');
+        }
+
+        $this->db->trans_start();
+        $this->db->where('id', $userId);
+        $this->db->update('users', ['last_connected' => date('Y-m-j H:i:s')]);
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() === false) {
+            $error = $this->db->error();
+            throw new Exception('Database error : ' . $error['message']);
+        }
+
+        return $userId;
+    }
+
     public function checkUser($data)
     {
         $query = $this->db->get_where('users', ['email' => $data['email']]);

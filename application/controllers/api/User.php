@@ -98,7 +98,7 @@ class User extends REST_Controller
             $this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email');
             $this->form_validation->set_rules('password', 'Password', 'trim|required');
 
-            if ($this->form_validation->run() === FALSE) {
+            if ($this->form_validation->run() === false) {
                 $this->response([
                     'status' => false,
                     'message' => validation_errors()
@@ -106,22 +106,30 @@ class User extends REST_Controller
                 return;
             }
 
-            $user = $this->UserModel->checkUser($data);
+            $user = null;
+
+            try {
+                $user = $this->UserModel->checkUser($data);
+            } catch (Exception $e) {
+                $this->response([
+                    'status' => false,
+                    'message' => $e->getMessage()
+                ], REST_Controller::HTTP_INTERNAL_SERVER_ERROR);
+            }
 
             if ($user) {
+                $this->UserModel->updateLastConnected($user->id);
                 $this->response([
                     'status' => true,
                     'message' => 'User connected successfully',
                     'data' => $user
-                ], REST_Controller::HTTP_OK); // 200 OK
+                ], REST_Controller::HTTP_OK);
             } else {
                 $this->response([
                     'status' => false,
                     'message' => 'Invalid email or password'
-                ], REST_Controller::HTTP_UNAUTHORIZED); // 401 Unauthorized
+                ], REST_Controller::HTTP_UNAUTHORIZED);
             }
-
-            $this->response("Envoi", REST_Controller::HTTP_OK);
         }
     }
 
