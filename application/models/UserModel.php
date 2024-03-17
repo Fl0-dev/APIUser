@@ -10,6 +10,10 @@ class UserModel extends CI_Model
 
     public function createUser($data, $isAdmin)
     {
+        if (empty($data) || !is_array($data)) {
+            throw new Exception('Data is required');
+        }
+
         $dataToInsert = [
             'email' => $data['email'],
             'password' => $this->hashPassword($data['password']),
@@ -31,7 +35,49 @@ class UserModel extends CI_Model
 
         if ($this->db->trans_status() === FALSE) {
             $error = $this->db->error();
-            throw new Exception('Erreur de base de données : ' . $error['message']);
+            throw new Exception('Database error : ' . $error['message']);
+        }
+
+        return $userId;
+    }
+
+    public function updateUser($userId, $data)
+    {
+        $dataToUpdate = [];
+        if (empty($userId)) {
+            throw new Exception('User id is required');
+        }
+        if (empty($data) || !is_array($data)) {
+            throw new Exception('Data is required');
+        }
+
+        if (isset($data['newPassword'])) {
+            $data['password'] = $data['newPassword'];
+            unset($data['newPassword']);
+        }
+
+        foreach ($data as $key => $value) {
+            if ($key === 'password') {
+                $dataToUpdate['password'] = $this->hashPassword($value);
+            } elseif ($key === 'postalCode') {
+                $dataToUpdate['postal_code'] = $value;
+            } else {
+                $dataToUpdate[$key] = $value;
+            }
+        }
+
+        if (!empty($dataToUpdate)) {
+            $this->db->trans_start();
+            $this->db->where('id', $userId);
+            $this->db->update('users', $dataToUpdate);
+            $this->db->trans_complete();
+
+            if ($this->db->trans_status() === false) {
+                $error = $this->db->error();
+                throw new Exception('Database error : ' . $error['message']);
+            }
+        } else {
+            throw new Exception('No data to update');
         }
 
         return $userId;
@@ -48,6 +94,30 @@ class UserModel extends CI_Model
             unset($user->created_at);
             unset($user->last_connected);
             return $user;
+        } else {
+            return false;
+        }
+    }
+
+    public function checkPassword($userId, $password)
+    {
+        $query = $this->db->get_where('users', ['id' => $userId]);
+        $user = $query->row();
+
+        if ($user && password_verify($password, $user->password)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function checkEmailIfDifferent($userId, $email)
+    {
+        $query = $this->db->get_where('users', ['id' => $userId]);
+        $user = $query->row();
+
+        if ($user && $user->email !== $email) {
+            return true;
         } else {
             return false;
         }

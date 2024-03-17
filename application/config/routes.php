@@ -60,7 +60,7 @@ $route['api/users/register'] = 'api/user/register';
 $route['api/admin/register'] = 'api/admin/register';
 $route['login'] = 'api/user/login';
 $route['logout'] = 'api/user/logout';
-$route['api/users/(:any)']['PUT'] = 'api/user/$1';
+$route['api/users/(:num)']['PUT'] = 'api/user/update/$1';
 
 $route['api/admin/users?page=(:num)&limit=(:num)']['GET'] = 'api/admin/users';
 $route['api/admin/users/(:num)']['DELETE'] = 'api/admin/$1';
