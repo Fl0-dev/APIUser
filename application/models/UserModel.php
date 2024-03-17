@@ -34,8 +34,7 @@ class UserModel extends CI_Model
         $this->db->trans_complete();
 
         if ($this->db->trans_status() === FALSE) {
-            $error = $this->db->error();
-            throw new Exception('Database error : ' . $error['message']);
+            throw new Exception('Database error');
         }
 
         return $userId;
@@ -73,14 +72,31 @@ class UserModel extends CI_Model
             $this->db->trans_complete();
 
             if ($this->db->trans_status() === false) {
-                $error = $this->db->error();
-                throw new Exception('Database error : ' . $error['message']);
+                throw new Exception('Database error');
             }
         } else {
             throw new Exception('No data to update');
         }
 
         return $userId;
+    }
+
+    public function deleteUser($userId)
+    {
+        if (empty($userId)) {
+            throw new Exception('User id is required');
+        }
+
+        $this->db->trans_start();
+        $this->db->where('id', $userId);
+        $this->db->delete('users');
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() === false) {
+            throw new Exception('Database error');
+        }
+
+        return true;
     }
 
     public function updateLastConnected($userId)
@@ -95,8 +111,7 @@ class UserModel extends CI_Model
         $this->db->trans_complete();
 
         if ($this->db->trans_status() === false) {
-            $error = $this->db->error();
-            throw new Exception('Database error : ' . $error['message']);
+            throw new Exception('Database error');
         }
 
         return $userId;

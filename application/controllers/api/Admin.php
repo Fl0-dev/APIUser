@@ -73,4 +73,88 @@ class Admin extends REST_Controller
             ], REST_Controller::HTTP_UNAUTHORIZED);
         }
     }
+
+    public function deleteUserByUserId_delete($userId)
+    {
+        $token = null;
+        $authHeader = $this->input->get_request_header('Authorization');
+
+        if ($authHeader) {
+            list($token) = sscanf($authHeader, 'Bearer %s');
+        }
+
+        if ($token === null || $token === '') {
+            $this->response([
+                'status' => false,
+                'message' => 'Token not provided'
+            ], REST_Controller::HTTP_UNAUTHORIZED);
+            return;
+        }
+
+        if ($token === getenv('BACKEND_BEARER_TOKEN')) {
+            if (empty($userId)) {
+                $this->response([
+                    'status' => false,
+                    'message' => 'User id is required'
+                ], REST_Controller::HTTP_BAD_REQUEST);
+                return;
+            }
+
+            try {
+                $result = $this->UserModel->deleteUser($userId);
+                if ($result === false) {
+                    $this->response([
+                        'status' => false,
+                        'message' => 'User not found'
+                    ], REST_Controller::HTTP_NOT_FOUND);
+                    return;
+                }
+                $this->response([
+                    'status' => true,
+                    'message' => 'User deleted successfully'
+                ], REST_Controller::HTTP_OK);
+            } catch (Exception $e) {
+                $this->response([
+                    'status' => false,
+                    'message' => $e->getMessage()
+                ], REST_Controller::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Token invalid'
+            ], REST_Controller::HTTP_UNAUTHORIZED);
+        }
+    }
+
+    public function users_get()
+    {
+        $token = null;
+        $authHeader = $this->input->get_request_header('Authorization');
+
+        if ($authHeader) {
+            list($token) = sscanf($authHeader, 'Bearer %s');
+        }
+
+        if ($token === null || $token === '') {
+            $this->response([
+                'status' => false,
+                'message' => 'Token not provided'
+            ], REST_Controller::HTTP_UNAUTHORIZED);
+            return;
+        }
+
+        if ($token === getenv('BACKEND_BEARER_TOKEN')) {
+            $users = $this->UserModel->getUsers();
+            $this->response([
+                'status' => true,
+                'data' => $users
+            ], REST_Controller::HTTP_OK);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Token invalid'
+            ], REST_Controller::HTTP_UNAUTHORIZED);
+        }
+    }
 }
