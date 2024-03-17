@@ -32,9 +32,9 @@ class User extends REST_Controller
             return;
         }
 
-        if ($token === getenv('FRONTEND_BEARER_TOKEN') || $token === getenv('BACKEND_BEARER_TOKEN')) {
+        if ($token === getenv('FRONTEND_BEARER_TOKEN')) {
             $data = $this->post();
-            $isAdmin = $token === getenv('BACKEND_BEARER_TOKEN');
+            $isAdmin = false;
 
             $this->form_validation->set_data($data);
             $this->form_validation->set_rules('email', 'Email', 'required|valid_email|is_unique[users.email]');
@@ -76,9 +76,53 @@ class User extends REST_Controller
 
     public function login_post()
     {
-        $data = $this->post();
+        $token = null;
+        $authHeader = $this->input->get_request_header('Authorization');
 
-        $this->response("Envoi", REST_Controller::HTTP_OK);
+        if ($authHeader) {
+            list($token) = sscanf($authHeader, 'Bearer %s');
+        }
+
+        if ($token === null || $token === '') {
+            $this->response([
+                'status' => false,
+                'message' => 'Token not provided'
+            ], REST_Controller::HTTP_UNAUTHORIZED);
+            return;
+        }
+
+        if ($token === getenv('FRONTEND_BEARER_TOKEN')) {
+            $data = $this->post();
+
+            $this->form_validation->set_data($data);
+            $this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email');
+            $this->form_validation->set_rules('password', 'Password', 'trim|required');
+
+            if ($this->form_validation->run() === FALSE) {
+                $this->response([
+                    'status' => false,
+                    'message' => validation_errors()
+                ], REST_Controller::HTTP_BAD_REQUEST); // 400 Bad request
+                return;
+            }
+
+            $user = $this->UserModel->checkUser($data);
+
+            if ($user) {
+                $this->response([
+                    'status' => true,
+                    'message' => 'User connected successfully',
+                    'data' => $user
+                ], REST_Controller::HTTP_OK); // 200 OK
+            } else {
+                $this->response([
+                    'status' => false,
+                    'message' => 'Invalid email or password'
+                ], REST_Controller::HTTP_UNAUTHORIZED); // 401 Unauthorized
+            }
+
+            $this->response("Envoi", REST_Controller::HTTP_OK);
+        }
     }
 
     public function logout_post()

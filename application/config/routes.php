@@ -57,6 +57,7 @@ $route['translate_uri_dashes'] = FALSE;
 /************ API ******************/
 $route['test'] = 'api/user/test';
 $route['api/users/register'] = 'api/user/register';
+$route['api/admin/register'] = 'api/admin/register';
 $route['login'] = 'api/user/login';
 $route['logout'] = 'api/user/logout';
 $route['api/users/(:any)']['PUT'] = 'api/user/$1';

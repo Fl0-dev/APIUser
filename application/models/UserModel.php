@@ -37,13 +37,24 @@ class UserModel extends CI_Model
         return $userId;
     }
 
+    public function checkUser($data)
+    {
+        $query = $this->db->get_where('users', ['email' => $data['email']]);
+        $user = $query->row();
+
+        if ($user && password_verify($data['password'], $user->password)) {
+            unset($user->password);
+            unset($user->is_admin);
+            unset($user->created_at);
+            unset($user->last_connected);
+            return $user;
+        } else {
+            return false;
+        }
+    }
+
     private function hashPassword($password)
     {
         return password_hash($password, PASSWORD_BCRYPT);
-    }
-
-    private function verifyPasswordHash($password, $hash)
-    {
-        return password_verify($password, $hash);
     }
 }
