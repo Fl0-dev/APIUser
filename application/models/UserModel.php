@@ -8,28 +8,41 @@ class UserModel extends CI_Model
         $this->load->database();
     }
 
-    public function create_user($firstname, $lastname, $email, $password, $address, $phone)
+    public function createUser($data, $isAdmin)
     {
-        $data = array(
-            'firstname' => $firstname,
-            'lastname'  => $lastname,
-            'email'     => $email,
-            'password'  => $this->hash_password($password),
-            'address'   => $address,
-            'phone'     => $phone,
+        $dataToInsert = [
+            'email' => $data['email'],
+            'password' => $this->hashPassword($data['password']),
+            'firstname' => $data['firstname'],
+            'lastname' => $data['lastname'],
+            'address' => $data['address'],
+            'postal_code' => $data['postalCode'],
+            'city' => $data['city'],
+            'phone' => $data['phone'],
             'created_at' => date('Y-m-j H:i:s'),
-        );
+            'last_connected' => date('Y-m-j H:i:s'),
+            'is_admin' => $isAdmin
+        ];
 
-        $this->db->insert('users', $data);
-        return $this->db->insert_id();
+        $this->db->trans_start();
+        $this->db->insert('users', $dataToInsert);
+        $userId = $this->db->insert_id();
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() === FALSE) {
+            $error = $this->db->error();
+            throw new Exception('Erreur de base de données : ' . $error['message']);
+        }
+
+        return $userId;
     }
 
-    private function hash_password($password)
+    private function hashPassword($password)
     {
         return password_hash($password, PASSWORD_BCRYPT);
     }
 
-    private function verify_password_hash($password, $hash)
+    private function verifyPasswordHash($password, $hash)
     {
         return password_verify($password, $hash);
     }
