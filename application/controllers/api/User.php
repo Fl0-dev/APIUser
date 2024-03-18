@@ -102,7 +102,7 @@ class User extends REST_Controller
                 $this->response([
                     'status' => false,
                     'message' => validation_errors()
-                ], REST_Controller::HTTP_BAD_REQUEST); // 400 Bad request
+                ], REST_Controller::HTTP_BAD_REQUEST);
                 return;
             }
 
