@@ -53,6 +53,7 @@ $route['default_controller'] = 'welcome';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
+$route['seed'] = 'seeder/seed';
 
 /************ API ******************/
 $route['api/users/register'] = 'api/user/register';
