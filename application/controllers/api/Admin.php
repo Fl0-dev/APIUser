@@ -5,7 +5,7 @@ require(APPPATH . '/libraries/REST_Controller.php');
 
 use Restserver\Libraries\REST_Controller;
 
-class User extends REST_Controller
+class Admin extends REST_Controller
 {
     public function __construct()
     {
@@ -32,9 +32,9 @@ class User extends REST_Controller
             return;
         }
 
-        if ($token === getenv('FRONTEND_BEARER_TOKEN')) {
+        if ($token === getenv('BACKEND_BEARER_TOKEN')) {
             $data = $this->post();
-            $isAdmin = false;
+            $isAdmin = true;
 
             $this->form_validation->set_data($data);
             $this->form_validation->set_rules('email', 'Email', 'required|valid_email|is_unique[users.email]');
@@ -74,7 +74,7 @@ class User extends REST_Controller
         }
     }
 
-    public function login_post()
+    public function deleteUserByUserId_delete($userId)
     {
         $token = null;
         $authHeader = $this->input->get_request_header('Authorization');
@@ -91,49 +91,43 @@ class User extends REST_Controller
             return;
         }
 
-        if ($token === getenv('FRONTEND_BEARER_TOKEN')) {
-            $data = $this->post();
-
-            $this->form_validation->set_data($data);
-            $this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email');
-            $this->form_validation->set_rules('password', 'Password', 'trim|required');
-
-            if ($this->form_validation->run() === false) {
+        if ($token === getenv('BACKEND_BEARER_TOKEN')) {
+            if (empty($userId)) {
                 $this->response([
                     'status' => false,
-                    'message' => validation_errors()
+                    'message' => 'User id is required'
                 ], REST_Controller::HTTP_BAD_REQUEST);
                 return;
             }
 
-            $user = null;
-
             try {
-                $user = $this->UserModel->checkUser($data);
+                $result = $this->UserModel->deleteUser($userId);
+                if ($result === false) {
+                    $this->response([
+                        'status' => false,
+                        'message' => 'User not found'
+                    ], REST_Controller::HTTP_NOT_FOUND);
+                    return;
+                }
+                $this->response([
+                    'status' => true,
+                    'message' => 'User deleted successfully'
+                ], REST_Controller::HTTP_OK);
             } catch (Exception $e) {
                 $this->response([
                     'status' => false,
                     'message' => $e->getMessage()
                 ], REST_Controller::HTTP_INTERNAL_SERVER_ERROR);
             }
-
-            if ($user) {
-                $this->UserModel->updateLastConnected($user->id);
-                $this->response([
-                    'status' => true,
-                    'message' => 'User connected successfully',
-                    'data' => $user
-                ], REST_Controller::HTTP_OK);
-            } else {
-                $this->response([
-                    'status' => false,
-                    'message' => 'Invalid email or password'
-                ], REST_Controller::HTTP_UNAUTHORIZED);
-            }
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Token invalid'
+            ], REST_Controller::HTTP_UNAUTHORIZED);
         }
     }
 
-    public function update_put($userId)
+    public function users_get()
     {
         $token = null;
         $authHeader = $this->input->get_request_header('Authorization');
@@ -150,56 +144,38 @@ class User extends REST_Controller
             return;
         }
 
-        if ($token === getenv('FRONTEND_BEARER_TOKEN')) {
-            $data = $this->put();
-
-            $this->form_validation->set_data($data);
-
-            if (isset($data['email']) && $this->UserModel->checkEmailIfDifferent($userId, $data['email'])) {
-                $this->form_validation->set_rules('email', 'Email', 'required|trim|valid_email|is_unique[users.email]');
-            } else {
-                $this->form_validation->set_rules('email', 'Email', 'required|trim|valid_email');
+        if ($token === getenv('BACKEND_BEARER_TOKEN')) {
+            $page = $this->get('page') ? (int) $this->get('page') : 1;
+            $limit = $this->get('limit') ? (int) $this->get('limit') : 10;
+            if ($page < 1) {
+                $page = 1;
             }
 
-            $this->form_validation->set_rules('password', 'Password', 'required|trim|min_length[8]');
-            $this->form_validation->set_rules('newPassword', 'NewPassword', 'trim|min_length[8]');
-            $this->form_validation->set_rules('firstname', 'Firstname', 'required|min_length[2]|max_length[50]');
-            $this->form_validation->set_rules('lastname', 'Lastname', 'required|min_length[2]|max_length[50]');
-            $this->form_validation->set_rules('address', 'Address', 'required|min_length[2]|max_length[255]');
-            $this->form_validation->set_rules('postalCode', 'PostalCode', 'required|min_length[5]|max_length[5]');
-            $this->form_validation->set_rules('city', 'City', 'required|min_length[2]|max_length[255]');
-            $this->form_validation->set_rules('phone', 'Phone', 'required|min_length[10]|max_length[10]');
-
-            if ($this->form_validation->run() === FALSE) {
-                $this->response([
-                    'status' => false,
-                    'message' => 'Invalid data for ' . validation_errors()
-                ], REST_Controller::HTTP_BAD_REQUEST);
-                return;
-            } else {
-                $isGoodPassword = $this->UserModel->checkPassword($userId, $data['password']);
-
-                if (!$isGoodPassword) {
-                    $this->response([
-                        'status' => false,
-                        'message' => 'Invalid password'
-                    ], REST_Controller::HTTP_UNAUTHORIZED);
-                    return;
-                }
-
-                try {
-                    $this->UserModel->updateUser($userId, $data);
-                    $this->response([
-                        'status' => true,
-                        'message' => 'User updated successfully'
-                    ], REST_Controller::HTTP_OK);
-                } catch (Exception $e) {
-                    $this->response([
-                        'status' => false,
-                        'message' => $e->getMessage()
-                    ], REST_Controller::HTTP_INTERNAL_SERVER_ERROR);
-                }
+            if ($limit < 1) {
+                $limit = 10;
             }
+            $offset = ($page - 1) * $limit;
+
+            $users = $this->UserModel->getUsers($limit, $offset);
+            $totalUsers = $this->UserModel->getCountUsers();
+
+            $totalPages = ceil($totalUsers / $limit);
+            $nextPage = ($page < $totalPages) ? $page + 1 : null;
+
+            $nextPageURL = null;
+            if ($nextPage) {
+                $nextPageURL = site_url('admin/users') . '?page=' . $nextPage . '&limit=' . $limit;
+            }
+
+            $response = [
+                'status' => true,
+                'data' => $users,
+                'totalPages' => $totalPages,
+                'currentPage' => $page,
+                'nextPageURL' => $nextPageURL,
+            ];
+
+            $this->response($response, REST_Controller::HTTP_OK);
         } else {
             $this->response([
                 'status' => false,
