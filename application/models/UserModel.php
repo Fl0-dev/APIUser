@@ -108,6 +108,25 @@ class UserModel extends CI_Model
         return true;
     }
 
+    public function deletingInactiveUsers($limitDate)
+    {
+        echo "deleteInactiveUsers" . PHP_EOL;
+        if (empty($limitDate)) {
+            throw new Exception('Limit date is required');
+        }
+        $this->db->trans_start();
+        $this->db->where('last_connected <', $limitDate);
+        $this->db->delete('users');
+        $usersDeleted = $this->db->affected_rows();
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() === false) {
+            throw new Exception('Database error');
+        }
+
+        return $usersDeleted;
+    }
+
     public function updateLastConnected($userId)
     {
         if (empty($userId)) {
