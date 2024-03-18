@@ -8,6 +8,15 @@ class UserModel extends CI_Model
         $this->load->database();
     }
 
+    public function getUsers($limit = 10, $offset = 0)
+    {
+        $this->db->select('id, email, firstname, lastname, address, postal_code, city, phone, created_at, last_connected, is_admin');
+        $this->db->limit($limit, $offset);
+        $query = $this->db->get('users');
+
+        return $query->result();
+    }
+
     public function createUser($data, $isAdmin)
     {
         if (empty($data) || !is_array($data)) {
@@ -119,14 +128,17 @@ class UserModel extends CI_Model
 
     public function checkUser($data)
     {
+        if (empty($data) || !is_array($data)) {
+            throw new Exception('Data is required');
+        }
+
+        $this->db->select('id, email, password, firstname, lastname, address, postal_code, city, phone');
         $query = $this->db->get_where('users', ['email' => $data['email']]);
         $user = $query->row();
 
         if ($user && password_verify($data['password'], $user->password)) {
             unset($user->password);
-            unset($user->is_admin);
-            unset($user->created_at);
-            unset($user->last_connected);
+
             return $user;
         } else {
             return false;
@@ -143,6 +155,11 @@ class UserModel extends CI_Model
         } else {
             return false;
         }
+    }
+
+    public function getCountUsers()
+    {
+        return $this->db->count_all('users');
     }
 
     public function checkEmailIfDifferent($userId, $email)

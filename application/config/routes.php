@@ -62,5 +62,5 @@ $route['login'] = 'api/user/login';
 $route['logout'] = 'api/user/logout';
 $route['api/users/(:num)']['PUT'] = 'api/user/update/$1';
 
-$route['api/admin/users?page=(:num)&limit=(:num)']['GET'] = 'api/admin/users';
+$route['api/admin/users?page=(:num)&limit=(:num)']['GET'] = 'api/admin/users/users';
 $route['api/admin/users/(:num)']['DELETE'] = 'api/admin/deleteUserByUserId/$1';

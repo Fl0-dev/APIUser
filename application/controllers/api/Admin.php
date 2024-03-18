@@ -145,11 +145,37 @@ class Admin extends REST_Controller
         }
 
         if ($token === getenv('BACKEND_BEARER_TOKEN')) {
-            $users = $this->UserModel->getUsers();
-            $this->response([
+            $page = $this->get('page') ? (int) $this->get('page') : 1;
+            $limit = $this->get('limit') ? (int) $this->get('limit') : 10;
+            if ($page < 1) {
+                $page = 1;
+            }
+
+            if ($limit < 1) {
+                $limit = 10;
+            }
+            $offset = ($page - 1) * $limit;
+
+            $users = $this->UserModel->getUsers($limit, $offset);
+            $totalUsers = $this->UserModel->getCountUsers();
+
+            $totalPages = ceil($totalUsers / $limit);
+            $nextPage = ($page < $totalPages) ? $page + 1 : null;
+
+            $nextPageURL = null;
+            if ($nextPage) {
+                $nextPageURL = site_url('admin/users') . '?page=' . $nextPage . '&limit=' . $limit;
+            }
+
+            $response = [
                 'status' => true,
-                'data' => $users
-            ], REST_Controller::HTTP_OK);
+                'data' => $users,
+                'totalPages' => $totalPages,
+                'currentPage' => $page,
+                'nextPageURL' => $nextPageURL,
+            ];
+
+            $this->response($response, REST_Controller::HTTP_OK);
         } else {
             $this->response([
                 'status' => false,
