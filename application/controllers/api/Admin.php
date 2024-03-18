@@ -13,6 +13,7 @@ class Admin extends REST_Controller
         $this->load->helper('form');
         $this->load->library('form_validation');
         $this->load->model('UserModel');
+        $this->load->helper('url');
     }
 
     public function register_post()
@@ -164,7 +165,7 @@ class Admin extends REST_Controller
 
             $nextPageURL = null;
             if ($nextPage) {
-                $nextPageURL = site_url('admin/users') . '?page=' . $nextPage . '&limit=' . $limit;
+                $nextPageURL = base_url('api/admin/users') . '?page=' . $nextPage . '&limit=' . $limit;
             }
 
             $response = [
