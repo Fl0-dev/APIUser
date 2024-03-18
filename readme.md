@@ -25,7 +25,8 @@ The constraints are in the file Exercice_Technique_AlloVoisins_Back.php at the r
 8. To fill the database with test data, run the command `php index.php batch seed`.
 
 ## Usage
-The API is accessible at `http://localhost:8000/api/`. The available routes are as follows:
+The API is accessible at `http://localhost:8000/api/`. 
+The available routes are as follows:
 - For the frontOffice:
     - `POST /users/register`: Create a user.
     - `POST /users/login`: Log in.
@@ -35,6 +36,10 @@ The API is accessible at `http://localhost:8000/api/`. The available routes are 
     - `GET /admin/users`: Retrieve all users.
     - `DELETE /admin/users/{id}`: Delete a user.
 
+More complete documentation can be found in the file `APIUser.postman_collection.json` at the root of the project.
+Just import it to use it
+
+## Batch
 2 commands are available
 - `php index.php batch seed`: Fills the database with test data.
 - `php index.php batch deleteInactiveUsers`: Deletes users inactive for 36 months.

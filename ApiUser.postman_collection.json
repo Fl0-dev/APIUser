@@ -1,0 +1,521 @@
+{
+	"info": {
+		"_postman_id": "4e49e061-8cf5-49ed-8676-ee0d0fea486d",
+		"name": "ApiUser",
+		"description": "The \"ApiUser\" collection is designed for managing user accounts, featuring both FrontOffice and BackOffice functionalities. It's structured to handle user registration, login, and updates through REST API endpoints, and also includes administrative capabilities for managing users. The collection leverages bearer token authentication to ensure secure access to the API endpoints.\n\n### FrontOffice\n\n- **Register user**: Allows new users to register by providing personal information such as email, password, first name, last name, address, postal code, city, and phone number.\n    \n- **Login**: Enables users to log in by submitting their email and password, validating user credentials for access.\n    \n- **Update**: Offers the ability to update user information, including changing passwords and updating personal details.\n    \n\n### BackOffice\n\n- **Register admin**: Facilitates the creation of new administrative users, who can manage the application and other users.\n    \n- **Delete User**: Grants administrators the power to delete user accounts, enhancing control over user management.\n    \n- **All Users**: Provides a list of all admin users, showcasing the administrative users within the system.\n    \n\nThe collection emphasizes on secure and efficient user management, catering to both front-end users and back-end administrators. It is built to streamline operations such as user registration, authentication, and administrative oversight, ensuring a comprehensive approach to user account management.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17043232",
+		"_collection_link": "https://gold-eclipse-289848.postman.co/workspace/6432c2e2-018c-4dd9-b639-3a2334f41c3a/collection/17043232-4e49e061-8cf5-49ed-8676-ee0d0fea486d?action=share&source=collection_link&creator=17043232"
+	},
+	"item": [
+		{
+			"name": "FrontOffice",
+			"item": [
+				{
+					"name": "Register user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{frontend_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"jeaneudes@gmail.com\",\r\n    \"password\": \"password\",\r\n    \"firstname\": \"jean\",\r\n    \"lastname\": \"eudes\",\r\n    \"address\": \"addresse jean\",\r\n    \"postalCode\": \"44000\",\r\n    \"city\": \"JeanCity\",\r\n    \"phone\": \"0660455664\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/users/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								"register"
+							]
+						},
+						"description": "\nThis endpoint is used to register new users. When making a POST request to this URL, the user needs to provide the email, password, firstname, lastname, address, postalCode, city, and phone in the request body.\n\n### Request Body\n- email (string): The email of the user.\n- password (string): The password for the user account.\n- firstname (string): The first name of the user.\n- lastname (string): The last name of the user.\n- address (string): The address of the user.\n- postalCode (string): The postal code of the user's location.\n- city (string): The city of the user's location.\n- phone (string): The phone number of the user.\n\nUpon successful execution, the endpoint returns a status code of 201 and a JSON response with the following structure:\n\n### Response\n- status (boolean): Indicates the status of the registration process.\n- message (string): A message related to the registration process.\n\nExample response:\n```json\n{\n    \"status\": true,\n    \"message\": \"\"\n}\n```\n"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Email is in a valid format\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseData).to.have.property('data');\r",
+									"    pm.expect(responseData.data).to.have.property('email').that.is.a('string').and.matches(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email is not in a valid format\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Phone number is in a valid format\", function () {\r",
+									"  const responseData = pm.response.json();\r",
+									"  \r",
+									"  pm.expect(responseData).to.be.an('object');\r",
+									"  pm.expect(responseData.data.phone).to.match(/^\\d{10}$/);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Message field is an empty string\", function () {\r",
+									"  const responseData = pm.response.json();\r",
+									"  \r",
+									"  pm.expect(responseData).to.have.property('message').that.is.an('string').and.to.be.empty;\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{frontend_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"admin@gmail.com\",\r\n    \"password\": \"azerty123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/users/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								"login"
+							]
+						},
+						"description": "\nThis endpoint is used to log in a user via an HTTP POST request to http://localhost:8000/api/users/login. The request should include a raw body with the user's email and password. Upon a successful execution, the endpoint returns a JSON response with a status indicator, a message, and user data including their ID, email, first name, last name, address, postal code, city, and phone number.\n\n"
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"  pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response has the required fields - status and message\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.property('status');\r",
+									"    pm.expect(responseData).to.have.property('message');\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Content-Type header is application/json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Status field is a boolean\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData.status).to.be.a('boolean');\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Message is a non-empty string\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData.message).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Message should not be empty\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{frontend_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"admin@gmail.com\",\r\n    \"password\": \"password\",\r\n    \"newPassword\": \"azerty123\",\r\n    \"firstname\": \"jeanne\",\r\n    \"lastname\": \"eudes\",\r\n    \"address\": \"addresse jeanne\",\r\n    \"postalCode\": \"44000\",\r\n    \"city\": \"JeanneCity\",\r\n    \"phone\": \"0660455664\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/users/:userId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								":userId"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": null,
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "This endpoint sends an HTTP PUT request to update user information at the specified userId.\n\n### Request Body\n\n- email (text, required): The user's email address.\n- password (text, required): The user's current password.\n- newPassword (text, required): The new password to be set.\n- firstname (text, required): The user's first name.\n- lastname (text, required): The user's last name.\n- address (text, required): The user's address.\n- postalCode (text, required): The user's postal code.\n- city (text, required): The user's city.\n- phone (text, required): The user's phone number.\n    \n\n### Response\n\nUpon successful execution, the endpoint returns a JSON object with the following properties:\n\n- status (boolean): Indicates the status of the operation, where true denotes success.\n- message (string): A message related to the operation, if applicable.\n    \n\nExample:\n\n``` json\n{\n    \"status\": true,\n    \"message\": \"\"\n}\n\n ```"
+					},
+					"response": []
+				}
+			],
+			"description": "Brings together endpoints accessible from the frontOffice",
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{frontend_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "BackOffice",
+			"item": [
+				{
+					"name": "Register admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Response status code is 201\", function () {\r",
+									"  pm.expect(pm.response.to.have.status(201));\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response has the required fields - status and message\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData.status).to.exist;\r",
+									"    pm.expect(responseData.message).to.exist;\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Status is a boolean value\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData.status).to.be.a('boolean');\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Message is a non-empty string\", function () {\r",
+									"  const responseData = pm.response.json();\r",
+									"  \r",
+									"  pm.expect(responseData.message).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Message should not be empty\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Content-Type header is application/json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{backend_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"supaAdmin@gmail.com\",\r\n    \"password\": \"password\",\r\n    \"firstname\": \"supa\",\r\n    \"lastname\": \"admin\",\r\n    \"address\": \"addresse admin\",\r\n    \"postalCode\": \"44000\",\r\n    \"city\": \"AdminCity\",\r\n    \"phone\": \"0660455664\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/admin/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"admin",
+								"register"
+							]
+						},
+						"description": "This endpoint allows administrators to register new users. When making a POST request to this endpoint with the required payload, a new user will be registered in the system.\n\n### Request Body\n\n- email (text, required): The email address of the user to be registered.\n- password (text, required): The password for the user's account.\n- firstname (text, required): The first name of the user.\n- lastname (text, required): The last name of the user.\n- address (text, required): The address of the user.\n- postalCode (text, required): The postal code of the user's address.\n- city (text, required): The city of the user's address.\n- phone (text, required): The phone number of the user.\n    \n\n### Response\n\nUpon successful registration, the endpoint returns a status code of 201 and a JSON response with the following structure:\n\n``` json\n{\n    \"status\": true,\n    \"message\": \"\"\n}\n\n ```\n\nThe \"status\" field indicates whether the registration was successful, and the \"message\" field may contain additional information or error messages."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"  pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response has the required fields - status and message\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.property('status');\r",
+									"    pm.expect(responseData).to.have.property('message');\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Status is a boolean value\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData.status).to.be.a('boolean');\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Message is a non-empty string\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData.message).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Content-Type header is application/json\", function () {\r",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{backend_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/api/admin/users/:userId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"admin",
+								"users",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "9"
+								}
+							]
+						},
+						"description": "This API endpoint sends an HTTP DELETE request to the specified URL to delete a user with the provided userId. Upon successful execution, it returns a 200 status with a JSON response containing a \"status\" field indicating the success status and a \"message\" field with an optional message."
+					},
+					"response": []
+				},
+				{
+					"name": "All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"description": "This endpoint makes an HTTP GET request to retrieve a list of admin users. The request should include query parameters for 'limit' and 'page' to specify the number of results per page and the page number, respectively.\n\n### Request\n\n- Method: GET\n- URL: [http://localhost:8000/api/admin/users](http://localhost:8000/api/admin/users)\n- Query Parameters:\n    - limit (integer): Specifies the number of results per page.\n    - page (integer): Specifies the page number.\n\n### Response\n\nThe response will have a status code of 200 and a JSON content type. The response body will include the following fields:\n\n- status (boolean): Indicates the status of the response.\n- data (array): Contains an array of objects representing admin users, with fields for id, email, firstname, lastname, address, postal_code, city, phone, created_at, last_connected, and is_admin.\n- totalPages (integer): Indicates the total number of pages available.\n- currentPage (integer): Indicates the current page number.\n- nextPageURL (string): Provides the URL for the next page of results, if available."
+					},
+					"response": []
+				}
+			],
+			"description": "Brings together endpoints accessible from the backOffice",
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{backend_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer"
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "front_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
