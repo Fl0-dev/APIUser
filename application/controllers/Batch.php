@@ -22,4 +22,25 @@ class Batch extends CI_Controller
             echo "error : " . $e->getMessage() . PHP_EOL;
         }
     }
+
+    public function seed()
+    {
+        $userModel = new UserModel();
+        $faker = Faker\Factory::create();
+        $isAdmin = false;
+        for ($i = 0; $i < 100; $i++) {
+            $data = [
+                'firstname' => $faker->firstName,
+                'lastname' => $faker->lastName,
+                'email' => $faker->email,
+                'password' => $faker->password,
+                'address' => $faker->address,
+                'postalCode' => $faker->postcode,
+                'city' => $faker->city,
+                'phone' => $faker->phoneNumber,
+            ];
+            $userModel->createUser($data, $isAdmin);
+        }
+        echo "100 Users created successfully" . PHP_EOL;
+    }
 }
