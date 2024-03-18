@@ -133,13 +133,6 @@ class User extends REST_Controller
         }
     }
 
-    public function logout_post()
-    {
-        $data = $this->post();
-
-        $this->response("Envoi", REST_Controller::HTTP_OK);
-    }
-
     public function update_put($userId)
     {
         $token = null;
@@ -213,15 +206,5 @@ class User extends REST_Controller
                 'message' => 'Token invalid'
             ], REST_Controller::HTTP_UNAUTHORIZED);
         }
-    }
-
-    public function test_get()
-    {
-        $userData = [
-            'id' => 1,
-            'name' => 'John Doe',
-            'email' => 'john@example.com'
-        ];
-        $this->response($userData, REST_Controller::HTTP_OK);
     }
 }
