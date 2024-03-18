@@ -9,6 +9,11 @@ class Batch extends CI_Controller
         $this->load->model('UserModel');
     }
 
+    /**
+     * Deletes users inactive since 36 months.
+     *
+     * @return void
+     */
     public function deleteInactiveUsers()
     {
         $userModel = new UserModel();
@@ -23,6 +28,11 @@ class Batch extends CI_Controller
         }
     }
 
+    /**
+     * Seeds the database with 100 users.
+     *
+     * @return void
+     */
     public function seed()
     {
         $userModel = new UserModel();

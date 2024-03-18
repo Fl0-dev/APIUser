@@ -8,6 +8,13 @@ class UserModel extends CI_Model
         $this->load->database();
     }
 
+    /**
+     * Returns a list of users.
+     *
+     * @param integer $limit
+     * @param integer $offset
+     * @return array
+     */
     public function getUsers($limit = 10, $offset = 0)
     {
         $this->db->select('id, email, firstname, lastname, address, postal_code, city, phone, created_at, last_connected, is_admin');
@@ -17,6 +24,12 @@ class UserModel extends CI_Model
         return $query->result();
     }
 
+    /**
+     * Returns a user by its id.
+     *
+     * @param integer $userId
+     * @return integer
+     */
     public function createUser($data, $isAdmin)
     {
         if (empty($data) || !is_array($data)) {
@@ -49,6 +62,13 @@ class UserModel extends CI_Model
         return $userId;
     }
 
+    /**
+     * Updates a user by id.
+     *
+     * @param integer $userId
+     * @param array $data
+     * @return integer
+     */
     public function updateUser($userId, $data)
     {
         $dataToUpdate = [];
@@ -90,6 +110,12 @@ class UserModel extends CI_Model
         return $userId;
     }
 
+    /**
+     * Deletes a user by id.
+     *
+     * @param integer $userId
+     * @return boolean
+     */
     public function deleteUser($userId)
     {
         if (empty($userId)) {
@@ -108,6 +134,12 @@ class UserModel extends CI_Model
         return true;
     }
 
+    /**
+     * Deletes inactive users.
+     *
+     * @param string $limitDate
+     * @return integer
+     */
     public function deletingInactiveUsers($limitDate)
     {
         echo "deleteInactiveUsers" . PHP_EOL;
@@ -127,6 +159,12 @@ class UserModel extends CI_Model
         return $usersDeleted;
     }
 
+    /**
+     * Updates the last connected date of a user.
+     *
+     * @param integer $userId
+     * @return integer
+     */
     public function updateLastConnected($userId)
     {
         if (empty($userId)) {
@@ -145,6 +183,12 @@ class UserModel extends CI_Model
         return $userId;
     }
 
+    /**
+     * Checks if a user exists and returns it.
+     *
+     * @param array $data
+     * @return object|boolean
+     */
     public function checkUser($data)
     {
         if (empty($data) || !is_array($data)) {
@@ -164,6 +208,13 @@ class UserModel extends CI_Model
         }
     }
 
+    /**
+     * Checks if a user exists and returns it.
+     *
+     * @param integer $userId
+     * @param string $password
+     * @return boolean
+     */
     public function checkPassword($userId, $password)
     {
         $query = $this->db->get_where('users', ['id' => $userId]);
@@ -176,11 +227,23 @@ class UserModel extends CI_Model
         }
     }
 
+    /**
+     * Returns the number of users.
+     *
+     * @return integer
+     */
     public function getCountUsers()
     {
         return $this->db->count_all('users');
     }
 
+    /**
+     * Checks if an email is different from the one in the database.
+     *
+     * @param integer $userId
+     * @param string $email
+     * @return boolean
+     */
     public function checkEmailIfDifferent($userId, $email)
     {
         $query = $this->db->get_where('users', ['id' => $userId]);
@@ -193,6 +256,12 @@ class UserModel extends CI_Model
         }
     }
 
+    /**
+     * Hashes a password.
+     *
+     * @param string $password
+     * @return string
+     */
     private function hashPassword($password)
     {
         return password_hash($password, PASSWORD_BCRYPT);

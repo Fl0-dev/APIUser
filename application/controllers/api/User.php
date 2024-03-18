@@ -15,6 +15,12 @@ class User extends REST_Controller
         $this->load->model('UserModel');
     }
 
+    /**
+     * Registers a new user and sends an HTTP response.
+     *
+     * @return void
+     * Sends an HTTP response to the client.
+     */
     public function register_post()
     {
         $token = null;
@@ -74,6 +80,12 @@ class User extends REST_Controller
         }
     }
 
+    /**
+     * Logs in a user and sends an HTTP response.
+     *
+     * @return void
+     * Sends an HTTP response to the client.
+     */
     public function login_post()
     {
         $token = null;
@@ -133,6 +145,13 @@ class User extends REST_Controller
         }
     }
 
+    /**
+     * Updates a user by id and sends an HTTP response.
+     *
+     * @param integer $userId
+     * @return void
+     * Sends an HTTP response to the client.
+     */
     public function update_put($userId)
     {
         $token = null;

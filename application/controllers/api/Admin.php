@@ -16,6 +16,12 @@ class Admin extends REST_Controller
         $this->load->helper('url');
     }
 
+    /**
+     * Registers a new admin and sends an HTTP response.
+     *
+     * @return void
+     * Sends an HTTP response to the client.
+     */
     public function register_post()
     {
         $token = null;
@@ -75,6 +81,13 @@ class Admin extends REST_Controller
         }
     }
 
+    /**
+     * Deletes a user by its id and sends an HTTP response.
+     *
+     * @param integer $userId
+     * @return void
+     * Sends an HTTP response to the client.
+     */
     public function deleteUserByUserId_delete($userId)
     {
         $token = null;
@@ -128,6 +141,12 @@ class Admin extends REST_Controller
         }
     }
 
+    /**
+     * Retrieves a list of users and sends an HTTP response.
+     *
+     * @return void
+     * Sends an HTTP response to the client.
+     */
     public function users_get()
     {
         $token = null;
